@@ -1,30 +1,47 @@
-from uuid import uuid4
+from datetime import date
+from typing import Dict
+from uuid import UUID
+from dataclasses import dataclass, as_dict
 
-class Book():
-    def __init__(self, title: str, author: str, year: int) -> None:
-        self.id = str(uuid4())
-        self.title = title
-        self.author = author
-        self.year = year
-        self.status = "В наличии"
-
-    def __str__(self) -> str:
-        return f"ID: {self.id}, Title: {self.title}, Author: {self.author}, Year: {self.year}, Status: {self.status}"
+@dataclass
+class Book:
+    id: UUID
+    title: str
+    author: str
+    year: int
+    status: str = "В наличии"
     
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "title": self.title,
-            "author": self.author,
-            "year": self.year,
-            "status": self.status
-        }
+    def to_dict(self) -> Dict:
+        return as_dict(self)
+
+    def validate(self) -> Dict:
+        errors = {}
+
+        if not self.title:
+            errors["title"] = "Название не может быть пустым."
+        elif len(self.title) > 100:
+            errors["title"] = "Название слишком длинное (максимум 100 символов)."
 
 
-    def set_status(self, new_staus) -> str:
-        if new_staus in ["В наличии", "Выдана"]:
-            self.status = new_staus
-            return f"Статус успешно изменен"
-        else:
-            raise ValueError("Недопустимый статус")
+        if not self.author:
+            errors["author"] = "Автор не может быть пустым."
+        elif len(self.author) > 50:
+            errors["author"] = "Имя автора слишком длинное (максимум 50 символов)."
+
+
+        if not isinstance(self.year, int) or self.year < 0:
+            errors["year"] = "Год должен быть положительным целым числом."
+        elif self.year > date.today().year + 1:
+            errors["year"] = "Год не может быть в будущем."
+
+
+        if self.status not in ["В наличии", "Нет в наличии", "Заказ", "Выдан"]:
+            errors["status"] = "Недопустимый статус."
+
+        return errors
+
+    def __post_init__(self) -> None:
+        errors = self.validate()
+        if errors:
+            raise ValueError(f"Ошибка валидации: {errors}")
 
