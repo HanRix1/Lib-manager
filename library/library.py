@@ -22,7 +22,6 @@ def open_json_file(filename, mode):
                     print(f"Режим обработки файла {mode} введен не корректно")
                 except json.JSONDecodeError as e:
                     print(f"Ошибка декодиорования Json: {e}")
-            print(result)
             return result
         return wrapper
     return decorator
