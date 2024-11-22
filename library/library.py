@@ -1,90 +1,41 @@
-from enum import Enum
-from typing import Union
+from typing import TypedDict
 from library.book import Book
 import json
 
-def open_json_file(filename, mode):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                with open(filename, "r") as file:
-                    data = json.load(file)
-            except FileNotFoundError:
-                data = []
 
-            result = func(data, *args, **kwargs)
+class BookTemplate(TypedDict):
+    """Типизированный словарь, представляющий информацию о книге.
 
-            if mode != "r":  
-                try:
-                    with open(filename, "w") as file:
-                        json.dump(data, file, indent=4)
-                except ValueError:
-                    print(f"Режим обработки файла {mode} введен не корректно")
-                except json.JSONDecodeError as e:
-                    print(f"Ошибка декодиорования Json: {e}")
-            return result
-        return wrapper
-    return decorator
-
-def open_json_file_for_writing(filename):
-    return open_json_file(filename, "w")  # "w" для перезаписи файла
-
-def open_json_file_for_reading(filename):
-    return open_json_file(filename, "r")  # "r" для чтения из файла
-
-FILENAME = "books.json"
+    Args:
+        id (str): Уникальный идентификатор книги.
+        title (str): Название книги.
+        author (str): Автор книги.
+        year (int): Год издания книги.
+        status (str): Статус книги (например, "available", "checked_out").
+    """
+    id: str
+    title: str
+    author: str
+    year: int
+    status: str
 
 
-@open_json_file_for_writing(FILENAME)
-def add_book(data, title: str, author: str, year: int) -> str:
-    new_book = Book(title, author, year).to_dict()
-    data.append(new_book)
-    return(f"Книга {title} успешно добавлена!")
+def book_list_formatter(books: list[BookTemplate]) -> str:
+    """
+    Форматирует список книг в читаемый формат.
 
+    Эта функция принимает список объектов типа BookTemplate и форматирует их в строку,
+    где каждая книга представлена в отдельном блоке с информацией о её ID, названии, авторе,
+    годе издания и статусе. Каждый блок книги разделён двумя новыми строками.
 
-@open_json_file_for_writing(FILENAME)
-def remove_book(data, target_id: str) -> str:
-    filtered_data = [book for book in data if book["id"] != target_id]
-    if len(filtered_data) == len(data):
-        raise ValueError(f"Книги с ID: {target_id} нету в списке")
-    data[:] = filtered_data
-    return f"Книга с ID {target_id} удалена"
+    Args:
+        books (list[BookTemplate]): Список книг, где каждая книга представлена в формате BookTemplate.
 
-class SearchOption(Enum):
-    value1: str = "title"
-    value2: str = "author"
-    value3: str = "year"
-
-@open_json_file_for_reading(FILENAME)
-def search_book(data, option: Union[SearchOption, str], query: str) -> str:
-    if isinstance(new_status, str):
-        try:
-            new_status = StatusOption(new_status)
-        except ValueError:
-            raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
-     
-    res = [book for book in data if book[option] == query]
-    buf = len(res)
-    if buf:
-        ans = [f"По запросу {option}={query} найдено {buf} книг:\n"]
-        for book in res:
-            book_info = (
-                f"ID: {book['id']}\n"
-                f"\tНазвание: {book['title']}\n"
-                f"\tАвтор: {book['author']}\n"
-                f"\tГод издания: {book['year']}\n"
-                f"\tСтатус: {book['status']}"
-            )
-            ans.append(book_info)
-        return "\n\n".join(ans)
-    else:
-        raise ValueError(f"По запросу {option}={query} ничего не найдено!")
-    
-
-@open_json_file_for_reading(FILENAME)
-def all_book_list(data) -> str:
-    result = [f"Всего найдено {len(data)} книг:"]
-    for book in data:
+    Returns:
+        str: Отформатированная строка, содержащая информацию о всех книгах из списка.
+    """
+    result = []
+    for book in books:
         book_info = (
             f"ID: {book['id']}\n"
             f"\tНазвание: {book['title']}\n"
@@ -92,25 +43,138 @@ def all_book_list(data) -> str:
             f"\tГод издания: {book['year']}\n"
             f"\tСтатус: {book['status']}"
         )
-        result.append(book_info)    
+        result.append(book_info)
     return "\n\n".join(result)
+    
 
 
-class StatusOption(Enum):
-    satus1: str = "В наличии"
-    status2: str = "Выдана"
+def load_file(filename: str) -> list[BookTemplate]:
+    """Загружает данные из файла в формате JSON.
+
+    Args:
+        filename (str): Имя файла, из которого загружаются данные.
+    
+    Returns:
+        list[BookTemplate]: Список словарей, содержащих загруженные данные.
+    """
+    try:
+        with open(filename, "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        data = []
+
+    return data
+
+def save_file(filename: str, data: list[dict]) -> None:
+    """Сохранение файла.
+    Функция сохраняет (data) в файл (filename). Так как эта функция использоваться
+    после операции чтения файла, ошибки связанные с открытием файла не обрабатываются.
+
+    Args:
+        filename (str): Название файла.
+        data Список словарей, содержащих информацию о книгах.
+
+    Returns:
+        _type_: None
+    """
+    try:
+        with open(filename, "w") as file:
+            json.dump(data, file, indent=4)
+    except json.JSONDecodeError as e:
+            print(f"Ошибка декодиорования Json: {e}")
+    return None
 
 
-@open_json_file_for_writing(FILENAME)
-def change_status(data, target_id: str, new_status: Union[StatusOption, str]) -> str:
-    if isinstance(new_status, str):
-        try:
-            new_status = StatusOption(new_status)
-        except ValueError:
-            raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
+
+def add_book(data: list[dict], title: str, author: str, year: int) -> str:
+    """Добавляет новую книгу в список данных.
+
+    Функция создаёт новую книгу с заданным заголовком, автором и годом выпуска, 
+    преобразует её в словарь и добавляет в список `data`. Предполагается, что объект 
+    класса `Book` автоматически генерирует уникальный идентификатор (ID) для каждой книги.
+
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        title (str): Заголовок добавляемой книги.
+        author (str): Автор добавляемой книги.
+        year (int): Год выпуска добавляемой книги.
+
+    Returns:
+        str: ID добавленной книги.
+    """
+    new_book = Book(title, author, year).to_dict()
+    data.append(new_book)
+    return new_book["id"]
+
+
+def remove_book(data: list[dict], target_id: str) -> BookTemplate:
+    """Удаляет книгу из списка данных по указанному ID.
+
+    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data).
+    Если книга с указанным идентификатором отсутствует, вызывается исключение ValueError.
+
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        target_id (str): Строка, представляющая идентификатор книги, которую необходимо удалить.
+
+    Raises:
+        ValueError: Если книга с указанным target_id не найдена в списке.
+
+    Returns:
+        BookTemplate: Удаленная книга.
+    """
+    for book in data:
+        if book["id"] == target_id:
+            res = book
+            data.remove(book)
+            return res
+    raise ValueError(f"Книга с ID: {target_id} не найдена в списке.")
+
+
+def search_book(data: list[dict], query: str, option: str) -> list[BookTemplate]:
+    """Ищет книги по запросу используя критерии поиска.
+
+    Функция ищет книги по указанному запросу (query) и критериям поиска
+    (option: title, author, year) в списке словаерй (data). Если критерий посика не корректен
+    вызвается исключение ValueError.
+    
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        query (str): Поисковый запрос.
+        option (str): Критерий поиска: title, author или year.
+
+    Returns:
+        list[BookTemplate]: Список найденых книг.
+    """     
+    result = [book for book in data if str(book[option]) == query]    
+    return result
+    
+
+
+def change_status(data: list[dict], target_id: str, new_status: str) -> list[BookTemplate]:
+    """Менят статус книги по ее ID.
+
+    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data) и 
+    изменят статус (new_status) на один из доступных ("Выдана", "В наличии"). Если новый стаус не соотвествует
+    шаблону или книга с указанным идентификатором отсутствует, вызывается исключение ValueError.
+
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        target_id (str): Строка, представляющая идентификатор книги, которую необходимо изменить.
+        new_status (Union[StatusOption, str]): Новый статус.
+
+    Raises:
+        ValueError: Если книга с указанным target_id не найдена в списке или новый стаус не соотвествует шаблону.
+
+    Returns:
+        list[BookTemplate]: Форматированный список книг.
+    """
+    tamplate = ["Выдана", "В наличии"]
+    if new_status not in tamplate:
+        raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {tamplate}")
         
     for book in data:
         if book["id"] == target_id:
-            book["status"] = new_status.value
-            return f"Статус книги с ID: {target_id} успешно изменен!"
+            book["status"] = new_status
+            return data
     raise ValueError(f"Книги с ID: {target_id} нет в списке!")

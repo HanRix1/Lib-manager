@@ -8,7 +8,7 @@ def create_parser():
     add_parser = subparser.add_parser("add", help="Добавить книгу")
     add_parser.add_argument("title", help="Название ккниги")
     add_parser.add_argument("author", help="Автор книги")
-    add_parser.add_argument("year", help="Год издания")
+    add_parser.add_argument("year", type=int, help="Год издания")
 
     # Команда удаления книги
     remove_parser = subparser.add_parser("remove", help="Удалить книгу")

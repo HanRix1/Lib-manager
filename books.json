@@ -1,0 +1,30 @@
+[
+    {
+        "title": "Hello",
+        "author": "WORLD",
+        "year": 1999,
+        "status": "\u0412 \u043d\u0430\u043b\u0438\u0447\u0438\u0438",
+        "id": "97b37b56-d5ec-4c21-ab61-1f5f5794d1a4"
+    },
+    {
+        "title": "Hello",
+        "author": "WORLD",
+        "year": 1999,
+        "status": "\u0412 \u043d\u0430\u043b\u0438\u0447\u0438\u0438",
+        "id": "c19e3bff-b29d-4357-bf08-a6cb9fe51231"
+    },
+    {
+        "title": "Hello",
+        "author": "WORLD",
+        "year": 1999,
+        "status": "\u0412 \u043d\u0430\u043b\u0438\u0447\u0438\u0438",
+        "id": "7d52f6d7-73d8-4e4c-8aa2-69a05182c67e"
+    },
+    {
+        "title": "aaaa",
+        "author": "aaaa",
+        "year": 1234,
+        "status": "\u0412 \u043d\u0430\u043b\u0438\u0447\u0438\u0438",
+        "id": "900aac24-6bf2-4b07-a370-38d4256fceb0"
+    }
+]

@@ -1,38 +1,49 @@
+from enum import Enum
 from library.cli import create_parser
-from library.library import add_book, all_book_list, change_status, remove_book, search_book
+from library.library import (add_book, save_file, book_list_formatter,
+                            change_status, load_file,
+                            remove_book, search_book)
+
+
+class Command(Enum):
+    ADD = "add"
+    REMOVE = "remove"
+    SEARCH = "search"
+    LIST = "list"
+    CHANGE_STATUS = "change_status"
+
 
 def main():
+    
     parser = create_parser()
     args = parser.parse_args()
+    filename = "books.json"
+    data = load_file(filename)
+    command = Command(args.command)
 
-    try:
-        if args.command == "add":
-            result = add_book(args.title, args.author, args.year)
-            print(result)
-
-        elif args.command == "remove":
-            result = remove_book(args.id)
-            print(result)
-
-        elif args.command == "search":
-            result = search_book(args.query, args.by)
-            print(result)
-
-        elif args.command == "list":
-            result = all_book_list()
-            print(result)
-
-        elif args.command == "change_status":
-            result = change_status(args.id, args.status)
-            print(result)
-
-        else:
+    match command:
+        case Command.ADD:
+            result = add_book(data, args.title, args.author, args.year)
+            save_file(filename, data)
+            print(f"Книга с ID:{result} добавлена!")
+        case Command.REMOVE:
+            result = remove_book(data, args.id)
+            save_file(filename, data)
+            print(f"Книга с ID:{result} удалена!")
+        case Command.SEARCH:
+            result = search_book(data, args.query, args.by)
+            print(f"По запросу {args.query} = {args.by} найдено {len(result)} книги(а):\n" + 
+                  book_list_formatter(result))
+        case Command.LIST:
+            print(book_list_formatter(data))
+        case Command.CHANGE_STATUS:
+            result = change_status(data, args.id, args.status)
+            save_file(filename, data)
+            print(f"Статус успешно изменен!")
+        case _:
             parser.print_help()
 
-    except Exception as e:
-        print(f"Ошибка: {e}")
+
 
 if __name__ == "__main__":
     main()
-
- 

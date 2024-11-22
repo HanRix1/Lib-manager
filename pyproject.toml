@@ -5,7 +5,9 @@ description = "Default template for PDM package"
 authors = [
     {name = "HanRix1", email = "HanRix1@mail.ru"},
 ]
-dependencies = []
+dependencies = [
+    "pytest>=8.3.3",
+]
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -13,3 +15,8 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "coverage>=7.6.8",
+]
