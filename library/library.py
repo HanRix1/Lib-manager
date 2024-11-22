@@ -3,86 +3,110 @@ from typing import Union
 from library.book import Book
 import json
 
-def open_json_file(filename, mode):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                with open(filename, "r") as file:
-                    data = json.load(file)
-            except FileNotFoundError:
-                data = []
 
-            result = func(data, *args, **kwargs)
+def save_file(filename: str, data: list[dict]) -> None:
+    """Сохранение файла.
+    Функция сохраняет (data) в файл (filename). Так как эта функция использоваться
+    после операции чтения файла, ошибки связанные с открытием файла не обрабатываются.
 
-            if mode != "r":  
-                try:
-                    with open(filename, "w") as file:
-                        json.dump(data, file, indent=4)
-                except ValueError:
-                    print(f"Режим обработки файла {mode} введен не корректно")
-                except json.JSONDecodeError as e:
-                    print(f"Ошибка декодиорования Json: {e}")
-            return result
-        return wrapper
-    return decorator
+    Args:
+        filename (str): Название файла.
+        data Список словарей, содержащих информацию о книгах.
 
-def open_json_file_for_writing(filename):
-    return open_json_file(filename, "w")  # "w" для перезаписи файла
-
-def open_json_file_for_reading(filename):
-    return open_json_file(filename, "r")  # "r" для чтения из файла
-
-FILENAME = "books.json"
+    Returns:
+        _type_: None
+    """
+    try:
+        with open(filename, "w") as file:
+            json.dump(data, file, indent=4)
+    except json.JSONDecodeError as e:
+            print(f"Ошибка декодиорования Json: {e}")
+    return None
 
 
-@open_json_file_for_writing(FILENAME)
-def add_book(data, title: str, author: str, year: int) -> str:
+def add_book(data: list[dict], title: str, author: str, year: int) -> str:
+    """Добавляет новую книгу в список данных.
+
+    Функция создаёт новую книгу с заданным заголовком, автором и годом выпуска, 
+    преобразует её в словарь и добавляет в список `data`. Предполагается, что объект 
+    класса `Book` автоматически генерирует уникальный идентификатор (ID) для каждой книги.
+
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        title (str): Заголовок добавляемой книги.
+        author (str): Автор добавляемой книги.
+        year (int): Год выпуска добавляемой книги.
+
+    Returns:
+        str: ID добавленной книги.
+    """
     new_book = Book(title, author, year).to_dict()
     data.append(new_book)
-    return(f"Книга {title} успешно добавлена!")
+    return new_book["id"]
 
 
-@open_json_file_for_writing(FILENAME)
-def remove_book(data, target_id: str) -> str:
-    filtered_data = [book for book in data if book["id"] != target_id]
-    if len(filtered_data) == len(data):
-        raise ValueError(f"Книги с ID: {target_id} нету в списке")
-    data[:] = filtered_data
-    return f"Книга с ID {target_id} удалена"
+def remove_book(data: list[dict], target_id: str) -> dict:
+    """Удаляет книгу из списка данных по указанному ID.
 
-class SearchOption(Enum):
-    value1: str = "title"
-    value2: str = "author"
-    value3: str = "year"
+    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data).
+    Если книга с указанным идентификатором отсутствует, вызывается исключение ValueError.
 
-@open_json_file_for_reading(FILENAME)
-def search_book(data, option: Union[SearchOption, str], query: str) -> str:
-    if isinstance(new_status, str):
-        try:
-            new_status = StatusOption(new_status)
-        except ValueError:
-            raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        target_id (str): Строка, представляющая идентификатор книги, которую необходимо удалить.
+
+    Raises:
+        ValueError: Если книга с указанным target_id не найдена в списке.
+
+    Returns:
+        dict: Удаленная книга.
+    """
+    for book in data:
+        if book["id"] == target_id:
+            res = book
+            data.remove(book)
+            return res
+    raise ValueError(f"Книга с ID: {target_id} не найдена в списке.")
+
+
+def search_book(data: list[dict], query: str, option: str) -> list[dict]:
+    """Ищет книгу по запросу используя критерии поиска.
+
+    Функция ищет книгу по указанному запросу (query) и критериям поиска
+    (option: title, author, year) в списке словаерй (data). Если критерий посика не корректен
+    вызвается исключение ValueError.
+    
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        query (str): Поисковый запрос.
+        option (str): Критерий поиска: title, author или year.
+
+    Raises:
+        ValueError: Если критерий посика не корректен.
+
+    Returns:
+        list[dict]: Список найденых книг.
+    """
+    searchoption = ["title", "author", "year"]
+    if option not in searchoption:
+        raise ValueError(f"Некорректный статус: {option}. Допустимые статусы: {searchoption}")
      
-    res = [book for book in data if book[option] == query]
-    buf = len(res)
-    if buf:
-        ans = [f"По запросу {option}={query} найдено {buf} книг:\n"]
-        for book in res:
-            book_info = (
-                f"ID: {book['id']}\n"
-                f"\tНазвание: {book['title']}\n"
-                f"\tАвтор: {book['author']}\n"
-                f"\tГод издания: {book['year']}\n"
-                f"\tСтатус: {book['status']}"
-            )
-            ans.append(book_info)
-        return "\n\n".join(ans)
-    else:
-        raise ValueError(f"По запросу {option}={query} ничего не найдено!")
+    res = [book for book in data if str(book[option]) == query]
+    return res
     
 
-@open_json_file_for_reading(FILENAME)
-def all_book_list(data) -> str:
+def all_book_list(data: list[dict]) -> str:
+    """Функция форматирования списка.
+    
+    Функция принимает список книг, представленный словарями 
+    с информацией о каждой книге, и форматирует их в строку.
+
+    Args:
+        data (list[dict]): Список словарей с информацией о книгах.
+
+    Returns:
+        str: Отформатированная строка, содержащая информацию о книгах.
+    """
     result = [f"Всего найдено {len(data)} книг:"]
     for book in data:
         book_info = (
@@ -96,18 +120,27 @@ def all_book_list(data) -> str:
     return "\n\n".join(result)
 
 
-class StatusOption(Enum):
-    satus1: str = "В наличии"
-    status2: str = "Выдана"
 
+def change_status(data: list[dict], target_id: str, new_status: str) -> list[dict]:
+    """Менят статус книги по ее ID.
 
-@open_json_file_for_writing(FILENAME)
-def change_status(data, target_id: str, new_status: Union[StatusOption, str]) -> str:
-    if isinstance(new_status, str):
-        try:
-            new_status = StatusOption(new_status)
-        except ValueError:
-            raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
+    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data) и 
+    изменят статус (new_status) на один из доступных ("Выдана", "В наличии"). Если новый стаус не соотвествует
+    шаблону или книга с указанным идентификатором отсутствует, вызывается исключение ValueError.
+
+    Args:
+        data (list[dict]): Список словарей, содержащих информацию о книгах.
+        target_id (str): Строка, представляющая идентификатор книги, которую необходимо изменить.
+        new_status (Union[StatusOption, str]): Новый статус.
+
+    Raises:
+        ValueError: Если книга с указанным target_id не найдена в списке или новый стаус не соотвествует шаблону.
+
+    Returns:
+        list[dict]: Форматированный список книг.
+    """
+    if new_status not in ["Выдана", "В наличии"]:
+        raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
         
     for book in data:
         if book["id"] == target_id:
