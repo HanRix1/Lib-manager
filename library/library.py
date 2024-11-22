@@ -139,8 +139,9 @@ def change_status(data: list[dict], target_id: str, new_status: str) -> list[dic
     Returns:
         list[dict]: Форматированный список книг.
     """
-    if new_status not in ["Выдана", "В наличии"]:
-        raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {[status.value for status in StatusOption]}")
+    tamplate = ["Выдана", "В наличии"]
+    if new_status not in tamplate:
+        raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {tamplate}")
         
     for book in data:
         if book["id"] == target_id:
