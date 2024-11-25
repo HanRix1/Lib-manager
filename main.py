@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 from library.cli import create_parser
 from library.library import (
@@ -12,7 +12,7 @@ from library.library import (
 )
 
 
-class Command(Enum):
+class Command(StrEnum):
     ADD = "add"
     REMOVE = "remove"
     SEARCH = "search"
@@ -26,9 +26,8 @@ def main():
     args = parser.parse_args()
     filename = "books.json"
     data = load_file(filename)
-    command = Command(args.command)
 
-    match command:
+    match args.command:
         case Command.ADD:
             result = add_book(data, args.title, args.author, args.year)
             save_file(filename, data)
@@ -42,7 +41,8 @@ def main():
             print(f"По запросу {args.query} = {args.by} найдено {len(result)} книги(а):\n" +
                   book_list_formatter(result))
         case Command.LIST:
-            print(book_list_formatter(data))
+            print(f"Всего найдено {len(data)} книг:\n"+
+                  book_list_formatter(data))
         case Command.CHANGE_STATUS:
             result = change_status(data, args.id, args.status)
             save_file(filename, data)
