@@ -19,9 +19,11 @@ def temp_filename(tmp_path_factory):
     file_path = tmp_path_factory.mktemp("data") / "example.json"
     return str(file_path)
 
+
 @pytest.fixture(scope="class")
 def parser():
     return create_parser()
+
 
 class TestCLI:
     @pytest.mark.parametrize(
@@ -29,7 +31,7 @@ class TestCLI:
         [
             ("Война и мир", "Лев Толстой", 2025, False),
             ("В" * 101, "Лев Толстой", 1869, True),
-            ("Война и мир", "d"*51, 1869, True),
+            ("Война и мир", "d" * 51, 1869, True),
             (None, "Лев Толстой", 1869, True),
             ("Война и мир", None, 1869, True),
             ("Война и мир", "Лев Толстой", 2026, True),
@@ -37,7 +39,9 @@ class TestCLI:
         ],
         ids=[1, 2, 3, 4, 5, 6, 7],
     )
-    def test_add_book(self, temp_filename, parser, title, author, year, raises_exception):
+    def test_add_book(
+        self, temp_filename, parser, title, author, year, raises_exception
+    ):
         args = parser.parse_args(["add", title, author, f"{year}"])
         data = load_file(temp_filename)
 
@@ -55,7 +59,6 @@ class TestCLI:
             assert updated_data[0]["year"] == year
             assert updated_data[0]["status"] == "В наличии"
 
-
     @pytest.mark.parametrize(
         "book_id, raises_exception",
         [
@@ -64,7 +67,9 @@ class TestCLI:
         ],
     )
     def test_book_remove(self, temp_filename, parser, book_id, raises_exception):
-        with mock.patch("library.book.uuid4", return_value="97b37b56-d5ec-4c21-ab61-1f5f5794d1a4"):
+        with mock.patch(
+            "library.book.uuid4", return_value="97b37b56-d5ec-4c21-ab61-1f5f5794d1a4"
+        ):
             initial_data = []
             initial_data.append(Book("Война и мир", "Лев Толстой", 1869).to_dict())
 
@@ -81,7 +86,6 @@ class TestCLI:
             save_file(temp_filename, updated_data)
             assert len(updated_data) == books_qnt - 1
             assert result == initial_data[0]
-
 
     @pytest.mark.parametrize(
         "query, option",
@@ -100,12 +104,13 @@ class TestCLI:
         save_file(temp_filename, initial_data)
 
         updated_data = load_file(temp_filename)
-        arguments = ["search", f"{query}", f"{option}"] if option else ["search", f"{query}"]
+        arguments = (
+            ["search", f"{query}", f"{option}"] if option else ["search", f"{query}"]
+        )
         args = parser.parse_args(arguments)
         result = search_book(updated_data, args.query, args.by)
         for book in result:
             assert book[option[5:] or "title"] == query
-
 
     @pytest.mark.parametrize(
         "book_id, status, raises_exception",
@@ -115,8 +120,12 @@ class TestCLI:
             ("c19e3bff-b29d-4357-bf08-a6cb9fe51231", "Выдана", True),
         ],
     )
-    def test_book_change_status(self, temp_filename, parser, book_id, status, raises_exception):
-        with mock.patch("library.book.uuid4", return_value="97b37b56-d5ec-4c21-ab61-1f5f5794d1a4"):
+    def test_book_change_status(
+        self, temp_filename, parser, book_id, status, raises_exception
+    ):
+        with mock.patch(
+            "library.book.uuid4", return_value="97b37b56-d5ec-4c21-ab61-1f5f5794d1a4"
+        ):
             initial_data = []
             initial_data.append(Book("Война и мир", "Лев Толстой", 1869).to_dict())
         save_file(temp_filename, initial_data)

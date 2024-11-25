@@ -50,13 +50,12 @@ def book_list_formatter(books: list[BookTemplate]) -> str:
     return "\n\n".join(result)
 
 
-
 def load_file(filename: str) -> list[BookTemplate]:
     """Загружает данные из файла в формате JSON.
 
     Args:
         filename (str): Имя файла, из которого загружаются данные.
-    
+
     Returns:
         list[BookTemplate]: Список словарей, содержащих загруженные данные.
 
@@ -68,6 +67,7 @@ def load_file(filename: str) -> list[BookTemplate]:
         data = []
 
     return data
+
 
 def save_file(filename: str, data: list[dict]) -> None:
     """Сохранение файла.
@@ -86,15 +86,14 @@ def save_file(filename: str, data: list[dict]) -> None:
         with open(filename, "w") as file:
             json.dump(data, file, indent=4)
     except json.JSONDecodeError as e:
-            print(f"Ошибка декодиорования Json: {e}")
-
+        print(f"Ошибка декодиорования Json: {e}")
 
 
 def add_book(data: list[dict], title: str, author: str, year: int) -> str:
     """Добавляет новую книгу в список данных.
 
-    Функция создаёт новую книгу с заданным заголовком, автором и годом выпуска, 
-    преобразует её в словарь и добавляет в список `data`. Предполагается, что объект 
+    Функция создаёт новую книгу с заданным заголовком, автором и годом выпуска,
+    преобразует её в словарь и добавляет в список `data`. Предполагается, что объект
     класса `Book` автоматически генерирует уникальный идентификатор (ID) для каждой книги.
 
     Args:
@@ -143,7 +142,7 @@ def search_book(data: list[dict], query: str, option: str) -> list[BookTemplate]
     Функция ищет книги по указанному запросу (query) и критериям поиска
     (option: title, author, year) в списке словаерй (data). Если критерий посика не корректен
     вызвается исключение ValueError.
-    
+
     Args:
         data (list[dict]): Список словарей, содержащих информацию о книгах.
         query (str): Поисковый запрос.
@@ -157,11 +156,12 @@ def search_book(data: list[dict], query: str, option: str) -> list[BookTemplate]
     return result
 
 
-
-def change_status(data: list[dict], target_id: str, new_status: str) -> list[BookTemplate]:
+def change_status(
+    data: list[dict], target_id: str, new_status: str
+) -> list[BookTemplate]:
     """Менят статус книги по ее ID.
 
-    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data) и 
+    Функция ищет и удаляет книгу с заданным идентификатором (target_id) из списка словарей (data) и
     изменят статус (new_status) на один из доступных ("Выдана", "В наличии"). Если новый стаус не соотвествует
     шаблону или книга с указанным идентификатором отсутствует, вызывается исключение ValueError.
 
@@ -179,7 +179,9 @@ def change_status(data: list[dict], target_id: str, new_status: str) -> list[Boo
     """
     tamplate = ["Выдана", "В наличии"]
     if new_status not in tamplate:
-        raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {tamplate}")
+        raise ValueError(
+            f"Некорректный статус: {new_status}. Допустимые статусы: {tamplate}"
+        )
 
     for book in data:
         if book["id"] == target_id:

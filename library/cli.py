@@ -18,14 +18,23 @@ def create_parser():
     # Команда поиска книги
     search_parser = subparser.add_parser("search", help="Поиск книги")
     search_parser.add_argument("query", help="Поисковый запрос")
-    search_parser.add_argument("--by", choices=["title", "author", "year"], default="title", help="Поле для поиска")
+    search_parser.add_argument(
+        "--by",
+        choices=["title", "author", "year"],
+        default="title",
+        help="Поле для поиска",
+    )
 
     # Команда отображения всех книг
     subparser.add_parser("list", help="Отобразить все книги")
 
-    #Команда изменения статуса книги
-    change_status_parser = subparser.add_parser("change_status", help="Изменить статус книги")
+    # Команда изменения статуса книги
+    change_status_parser = subparser.add_parser(
+        "change_status", help="Изменить статус книги"
+    )
     change_status_parser.add_argument("id", help="ID книги")
-    change_status_parser.add_argument("status", choices=["В наличии", "Выдана"], help="Новый статус")
+    change_status_parser.add_argument(
+        "status", choices=["В наличии", "Выдана"], help="Новый статус"
+    )
 
     return parser

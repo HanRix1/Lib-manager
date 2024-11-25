@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 from library.cli import create_parser
 from library.library import (
@@ -31,11 +31,11 @@ def main():
         case Command.ADD:
             result = add_book(data, args.title, args.author, args.year)
             save_file(filename, data)
-            print(f"Книга с ID:{result} добавлена!")
+            print(f"Книга с ID: {result} добавлена!")
         case Command.REMOVE:
             result = remove_book(data, args.id)
             save_file(filename, data)
-            print(f"Книга с ID:{result} удалена!")
+            print(f"Книга с ID:{result['id']} удалена!")
         case Command.SEARCH:
             result = search_book(data, args.query, args.by)
             print(f"По запросу {args.query} = {args.by} найдено {len(result)} книги(а):\n" +
