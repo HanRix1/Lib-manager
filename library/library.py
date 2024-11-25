@@ -1,6 +1,7 @@
-from typing import TypedDict
-from library.book import Book
 import json
+from typing import TypedDict
+
+from library.book import Book
 
 
 class BookTemplate(TypedDict):
@@ -12,7 +13,9 @@ class BookTemplate(TypedDict):
         author (str): Автор книги.
         year (int): Год издания книги.
         status (str): Статус книги (например, "available", "checked_out").
+
     """
+
     id: str
     title: str
     author: str
@@ -21,8 +24,7 @@ class BookTemplate(TypedDict):
 
 
 def book_list_formatter(books: list[BookTemplate]) -> str:
-    """
-    Форматирует список книг в читаемый формат.
+    """Форматирует список книг в читаемый формат.
 
     Эта функция принимает список объектов типа BookTemplate и форматирует их в строку,
     где каждая книга представлена в отдельном блоке с информацией о её ID, названии, авторе,
@@ -33,6 +35,7 @@ def book_list_formatter(books: list[BookTemplate]) -> str:
 
     Returns:
         str: Отформатированная строка, содержащая информацию о всех книгах из списка.
+
     """
     result = []
     for book in books:
@@ -45,7 +48,7 @@ def book_list_formatter(books: list[BookTemplate]) -> str:
         )
         result.append(book_info)
     return "\n\n".join(result)
-    
+
 
 
 def load_file(filename: str) -> list[BookTemplate]:
@@ -56,9 +59,10 @@ def load_file(filename: str) -> list[BookTemplate]:
     
     Returns:
         list[BookTemplate]: Список словарей, содержащих загруженные данные.
+
     """
     try:
-        with open(filename, "r") as file:
+        with open(filename) as file:
             data = json.load(file)
     except FileNotFoundError:
         data = []
@@ -76,13 +80,13 @@ def save_file(filename: str, data: list[dict]) -> None:
 
     Returns:
         _type_: None
+
     """
     try:
         with open(filename, "w") as file:
             json.dump(data, file, indent=4)
     except json.JSONDecodeError as e:
             print(f"Ошибка декодиорования Json: {e}")
-    return None
 
 
 
@@ -101,6 +105,7 @@ def add_book(data: list[dict], title: str, author: str, year: int) -> str:
 
     Returns:
         str: ID добавленной книги.
+
     """
     new_book = Book(title, author, year).to_dict()
     data.append(new_book)
@@ -122,6 +127,7 @@ def remove_book(data: list[dict], target_id: str) -> BookTemplate:
 
     Returns:
         BookTemplate: Удаленная книга.
+
     """
     for book in data:
         if book["id"] == target_id:
@@ -145,10 +151,11 @@ def search_book(data: list[dict], query: str, option: str) -> list[BookTemplate]
 
     Returns:
         list[BookTemplate]: Список найденых книг.
-    """     
-    result = [book for book in data if str(book[option]) == query]    
+
+    """
+    result = [book for book in data if str(book[option]) == query]
     return result
-    
+
 
 
 def change_status(data: list[dict], target_id: str, new_status: str) -> list[BookTemplate]:
@@ -168,11 +175,12 @@ def change_status(data: list[dict], target_id: str, new_status: str) -> list[Boo
 
     Returns:
         list[BookTemplate]: Форматированный список книг.
+
     """
     tamplate = ["Выдана", "В наличии"]
     if new_status not in tamplate:
         raise ValueError(f"Некорректный статус: {new_status}. Допустимые статусы: {tamplate}")
-        
+
     for book in data:
         if book["id"] == target_id:
             book["status"] = new_status

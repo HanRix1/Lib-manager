@@ -1,6 +1,6 @@
+from dataclasses import asdict, dataclass, field
 from datetime import date
 from uuid import UUID, uuid4
-from dataclasses import dataclass, asdict, field
 
 
 @dataclass
@@ -10,12 +10,13 @@ class Book:
     year: int
     status: str = "В наличии"
     id: UUID = field(default_factory=lambda: uuid4())
-    
+
     def to_dict(self) -> dict:
         """Метод сериализующий экземпляр класса в словарь.
 
         Returns:
             dict: резульирующий словарь
+
         """
         return asdict(self) | dict(id=str(self.id))
 

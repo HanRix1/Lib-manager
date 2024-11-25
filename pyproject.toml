@@ -19,4 +19,5 @@ distribution = false
 [tool.pdm.dev-dependencies]
 dev = [
     "coverage>=7.6.8",
+    "ruff>=0.8.0",
 ]

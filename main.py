@@ -1,8 +1,15 @@
 from enum import Enum
+
 from library.cli import create_parser
-from library.library import (add_book, save_file, book_list_formatter,
-                            change_status, load_file,
-                            remove_book, search_book)
+from library.library import (
+    add_book,
+    book_list_formatter,
+    change_status,
+    load_file,
+    remove_book,
+    save_file,
+    search_book,
+)
 
 
 class Command(Enum):
@@ -14,7 +21,7 @@ class Command(Enum):
 
 
 def main():
-    
+
     parser = create_parser()
     args = parser.parse_args()
     filename = "books.json"
@@ -32,14 +39,14 @@ def main():
             print(f"Книга с ID:{result} удалена!")
         case Command.SEARCH:
             result = search_book(data, args.query, args.by)
-            print(f"По запросу {args.query} = {args.by} найдено {len(result)} книги(а):\n" + 
+            print(f"По запросу {args.query} = {args.by} найдено {len(result)} книги(а):\n" +
                   book_list_formatter(result))
         case Command.LIST:
             print(book_list_formatter(data))
         case Command.CHANGE_STATUS:
             result = change_status(data, args.id, args.status)
             save_file(filename, data)
-            print(f"Статус успешно изменен!")
+            print("Статус успешно изменен!")
         case _:
             parser.print_help()
 

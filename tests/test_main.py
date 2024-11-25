@@ -1,17 +1,23 @@
-import json
-import uuid
-import pytest
 from unittest import mock
+
+import pytest
+
 from library.book import Book
 from library.cli import create_parser
-from library.library import (add_book, save_file, load_file,
-                            change_status, remove_book, search_book)
+from library.library import (
+    add_book,
+    change_status,
+    load_file,
+    remove_book,
+    save_file,
+    search_book,
+)
 
 
 @pytest.fixture(scope="class")
 def temp_filename(tmp_path_factory):
     file_path = tmp_path_factory.mktemp("data") / "example.json"
-    yield str(file_path)
+    return str(file_path)
 
 @pytest.fixture(scope="class")
 def parser():
@@ -27,9 +33,9 @@ class TestCLI:
             (None, "Лев Толстой", 1869, True),
             ("Война и мир", None, 1869, True),
             ("Война и мир", "Лев Толстой", 2026, True),
-            ("Война и мир", "Лев Толстой", -2022, True)
+            ("Война и мир", "Лев Толстой", -2022, True),
         ],
-        ids=[1, 2, 3, 4, 5, 6, 7,]
+        ids=[1, 2, 3, 4, 5, 6, 7],
     )
     def test_add_book(self, temp_filename, parser, title, author, year, raises_exception):
         args = parser.parse_args(["add", title, author, f"{year}"])
@@ -54,7 +60,7 @@ class TestCLI:
         "book_id, raises_exception",
         [
             ("97b37b56-d5ec-4c21-ab61-1f5f5794d1a4", False),
-            ("c19e3bff-b29d-4357-bf08-a6cb9fe51231", True)
+            ("c19e3bff-b29d-4357-bf08-a6cb9fe51231", True),
         ],
     )
     def test_book_remove(self, temp_filename, parser, book_id, raises_exception):
@@ -106,7 +112,7 @@ class TestCLI:
         [
             ("97b37b56-d5ec-4c21-ab61-1f5f5794d1a4", "Выдана", False),
             ("97b37b56-d5ec-4c21-ab61-1f5f5794d1a4", "В наличии", False),
-            ("c19e3bff-b29d-4357-bf08-a6cb9fe51231", "Выдана", True)
+            ("c19e3bff-b29d-4357-bf08-a6cb9fe51231", "Выдана", True),
         ],
     )
     def test_book_change_status(self, temp_filename, parser, book_id, status, raises_exception):
